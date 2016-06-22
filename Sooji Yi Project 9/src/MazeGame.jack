@@ -1,0 +1,249 @@
+/**
+	Implements the Maze game.
+	In this game, the person can move around as a square and try to get to the end of the maze. Press Q to quit.
+*/
+
+class MazeGame
+{
+
+	/** Instance variables */
+	//-----------------------
+	field Person playerone;
+	field int directionOne, X, Y;
+
+	field boolean end;
+	field boolean win;
+
+	field int score;
+	field boolean exit; // To end game
+
+	/** Constructor */
+	//-----------------
+	constructor MazeGame new()
+	{
+		do Screen.clearScreen();
+		let playerone = Person.new(0, 0, 20);
+
+		let directionOne = 0;
+		let X = 491;
+		let Y = 235;
+
+		do Screen.drawPixel(X, Y);
+
+		let exit = false;
+
+		// Draw the maze
+		do Screen.drawLine(0, 30, 400, 30);
+		do Screen.drawLine(80, 60, 511, 60);
+		do Screen.drawLine(30, 90, 400, 90);
+		do Screen.drawLine(0, 120, 50, 120);
+		do Screen.drawLine(100, 120, 450, 120);
+		do Screen.drawLine(10, 150, 150, 150);
+		do Screen.drawLine(200, 150, 511, 150);
+		do Screen.drawLine(100, 180, 480, 180);
+		do Screen.drawLine(0, 210, 245, 210);
+		do Screen.drawLine(275, 210, 475, 210);
+		do Screen.drawLine(125, 240, 400, 240);
+
+		return this;
+	}
+
+	/** De-allocates the object's memory */
+	//-------------------------------------
+	method void dispose()
+	{
+		do playerone.dispose();
+		do Memory.deAlloc(this);
+		return;
+	}
+
+	/** Starts the game */
+	//--------------------
+	method void run()
+	{
+		var char key1;
+
+		while (~exit)
+		{
+			while (key1 = 0)
+			{
+				let key1 = Keyboard.keyPressed();
+				do movePlayerOne();
+
+				if (key1 = 81) // If user presses Q, then exit and quit.
+				{
+					let exit = true;
+				}
+		
+				if (key1 = 131) // Up arrow key
+				{
+					let directionOne = 1; // Move up
+				}
+
+				if (key1 = 132) // Right arrow key
+				{
+					let directionOne = 2;
+				}
+
+				if (key1 = 130) // Left arrow key
+				{
+					let directionOne = 3;
+				}
+
+				if (key1 = 133) // Down arrow key
+				{
+					let directionOne = 4;
+				}
+
+			}
+
+			while (~(key1 = 0))
+			{
+				let key1 = Keyboard.keyPressed();
+				do movePlayerOne();
+			}
+
+		}
+
+		// If game is over, then do the following:
+		if (exit)
+		{
+		    do Screen.clearScreen();
+        	do Output.moveCursor(0, 0);
+			do Output.printString("Game Over.");	
+		}
+		return;
+	}	
+
+	/** Handles the movement of the player. */
+	//----------------------------------------
+	method void movePlayerOne()
+	{
+		var int coorX, coorY, XX, YY;
+		var int size;
+		var int speed;
+
+		let coorX = playerone.getX(); // Bottom right coordinates
+		let coorY = playerone.getY();
+		let XX = playerone.getXX(); // Upper left coordinates
+		let YY = playerone.getYY();
+		let size = playerone.getSize();
+
+		let speed = 20; // Made this into a variable so it's easy to change
+
+		let end = false; // Can end without winning
+		let win = false;
+
+		/** Tells player object where to move. */
+		if (directionOne = 1)
+		{
+			do playerone.moveUp();
+		}
+
+		if (directionOne = 2)
+		{
+			do playerone.moveRight();
+		}
+
+		if (directionOne = 3)
+		{
+			do playerone.moveLeft();
+		}
+
+		if (directionOne = 4)
+		{
+			do playerone.moveDown();
+		}
+
+		/** Checks to see if the player is at the end or if the game is over. */
+		//-----------------------------------------------------------------------
+		if (((coorX > 0) & (coorX < 400) & (coorY = 30)) | ((XX > 0) & (XX < 400) & (YY = 30)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 80) & (coorX < 511) & (coorY = 60)) | ((XX > 80) & (XX < 511) & (YY = 60)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 30) & (coorX < 400) & (coorY = 90)) | ((XX > 30) & (XX < 400) & (YY = 90)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 0) & (coorX < 50) & (coorY = 120)) | ((XX > 0) & (XX < 50) & (YY = 120)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 100) & (coorX < 450) & (coorY = 120)) | ((XX > 100) & (XX < 450) & (YY = 120)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 10) & (coorX < 150) & (coorY = 150)) | ((XX > 10) & (XX < 150) & (YY = 150)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 200) & (coorX < 511) & (coorY = 150)) | ((XX > 200) & (XX < 511) & (YY = 150)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 100) & (coorX < 480) & (coorY = 180)) | ((XX > 100) & (XX < 480) & (YY = 180)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 0) & (coorX < 245) & (coorY = 210)) | ((XX > 0) & (XX < 245) & (YY = 210)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 275) & (coorX < 475) & (coorY = 210)) | ((XX > 275) & (XX < 475) & (YY = 210)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 125) & (coorX < 400) & (coorY = 240)) | ((XX > 125) & (XX < 400) & (YY = 240)))
+		{
+			let end = true;
+		}
+
+		if (((coorX > 490) & (coorX < 512) & (coorY > 235)) | ((XX > 490) & (XX < 512) & (YY > 235)))
+		{
+			let end = true;
+			let win = true;
+		}
+
+		if (end & ~(win))
+		{
+			do Screen.clearScreen();
+        	do Output.moveCursor(0, 0);
+            do Output.printString("Game over!");
+            do Sys.halt();
+		}
+
+		if (end & win)
+		{
+			do Screen.clearScreen();
+        	do Output.moveCursor(0, 0);
+            do Output.printString("Game over! You win!");
+            do Sys.halt();
+		}
+
+		/** Can change speed. */
+		do Sys.wait(speed);
+		return;
+	}
+
+	method boolean getResult()
+	{
+		return win;
+	}
+
+
+
+}

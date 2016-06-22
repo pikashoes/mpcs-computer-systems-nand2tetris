@@ -1,0 +1,21 @@
+/**
+	Runs the game.
+*/
+
+class Main
+{
+	function void main()
+	{
+		var MazeGame game;
+
+		let game = MazeGame.new();
+
+		do Output.printString("Try to get to the end.");
+		do Output.printString("Q to quit.");
+
+		do game.run();
+		do game.dispose();
+
+		return;
+	}
+}

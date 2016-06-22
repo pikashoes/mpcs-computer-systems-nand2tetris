@@ -1,0 +1,66 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/Memory.hdl
+
+/**
+ * The complete address space of the Hack computer's memory,
+ * including RAM and memory-mapped I/O. 
+ * The chip facilitates read and write operations, as follows:
+ *     Read:  out(t) = Memory[address(t)](t)
+ *     Write: if load(t-1) then Memory[address(t-1)](t) = in(t-1)
+ * In words: the chip always outputs the value stored at the memory 
+ * location specified by address. If load==1, the in value is loaded 
+ * into the memory location specified by address. This value becomes 
+ * available through the out output from the next time step onward.
+ * Address space rules:
+ * Only the upper 16K+8K+1 words of the Memory chip are used. 
+ * Access to address>0x6000 is invalid. Access to any address in 
+ * the range 0x4000-0x5FFF results in accessing the screen memory 
+ * map. Access to address 0x6000 results in accessing the keyboard 
+ * memory map. The behavior in these addresses is described in the 
+ * Screen and Keyboard chip specifications given in the book. (Copied below)
+ * “According to its specification, the Memory chip of the Hack platform is  
+ * essentially a package of three lower-level chips: RAM16K, Screen, and Keyboard. At 
+ * the same time, users of the Memory chip must see a single logical address space, 
+ * spanning from location 0 to 24576 (0x0000 to 0x6000—see figure 5.7).”
+ */
+
+CHIP Memory {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    /**
+    *This is similar to building RAM. It does not contain a bunch of registers, though.
+    *Select between the RAM (split here in two since there is no such thing as a 3Way) or the screen or the 
+    *keyboard. Screen has address [13] and keyboard has address [14].
+    */
+    DMux4Way(in = load, sel = address[13..14], a = or1, b = or2, c = screen, d = kbd);
+            // NOTE: or1 and or2 are separated so that we can use a DMux4Way.
+    
+    // If or1 or or2, then you get load which will go to memory. From the DMux4Way above. As 
+    // long as one of them is 1 then we are going to RAM.
+    Or(a = or1, b = or2, out = load1);
+    
+    // If load1(t-1) then we put it into the address.
+    RAM16K(in = in, load = load1, address = address[0..13], out = outRam);
+
+    // If the DMux takes us to the screen, then we output to screen.
+    Screen(in = in, load = screen, address = address[0..12], out = outScreen);
+
+    // If the DMux takes us to d = kbd, since there is no input from keyboard in the chip (it
+    // comes directly from the keyboard), then we will go here.
+    Keyboard(out = outKeyboard);
+    
+    // We want to out[16] as shown in Figure 5.7. Just like we “split” up the RAM above to use 
+    // a DMux4Way, can use it twice here because it goes to the same thing.
+    Mux4Way16(a = outRam, b = outRam, c = outScreen, d = outKeyboard, sel = address[13..14], out = out);
+		// If sel == 00, then out = outRam
+               // If sel = 01, then out = outRam
+               // If sel = 10, then out = outScreen (address[13] is screen)
+               // If sel = 11, then out = outKeyboard
+               // We are essentially selecting between the RAM or the memory map (screen or keyboard) for the output.
+
+
+}

@@ -1,0 +1,77 @@
+CHIP CPU
+{
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+
+    // ————FIRST MUX———— //
+    // Create a not-inM because to get an A-instruction, instruction[15] needs to be 0
+    // This will be the selector for the first Mux
+    Not(in = instruction[15], out = notinst15);
+    Mux16(a = outALU, b = instruction, sel = notinst15, out = outMuxA);
+
+    // ————  A  —————//    
+    // It will go to A register if i[5] is a 1. This also gives us the address of M.
+    // It can also go to A register if i[15] is 0. So we use OR.
+    Or(a = instruction[5], b = notinst15, out = loadA);
+    ARegister(in = outMuxA, load = loadA, out = outA, out[0..14] = addressM);
+
+    // ————SECOND MUX———— //
+    // To get AM, you need M and then A can come from A-Instruction or C-Instruction. In C-Instruction, instruction[15] = 1.
+    And(a = instruction[15], b = instruction[12], out = selAM);
+    Mux16(a = outA, b = inM, sel = selAM, out = AM);
+    
+    // ————   D   ————//
+    // Similar to the second Mux with the C-Instruction
+    And(a = instruction[4], b = instruction[15], out = loadD);
+    DRegister(in = outALU, load = loadD, out = outD);
+
+    // —— ALU —— //
+    // Since we have outD and AM, we can use the ALU.
+    ALU(x = outD, y = AM, zx = instruction[11], nx = instruction[10], zy = instruction[9], ny = instruction[8], f = instruction[7], no = instruction[6], out = outM, out = outALU, zr = zr, ng = ng);
+
+    // ———— writeM ——— //
+    // When d3 is 1 and instruction[15] is 1 (not 0), you write to memory
+    And(a = instruction[15], b = instruction[3], out = writeM);
+
+    // —— Load —— //
+
+    // zr and i[1] and i[15] is when out = 0
+    And(a = instruction[1], b = instruction[15], out = JEQ); // i[1] and i[15]
+    And(a = JEQ, b = zr, out = load1); // Add in the zr to ensure only when zr = 1 since that is when the ALU output = 0
+
+    // i[2] and i[15] and ng is when out < 0
+    And(a = instruction[2], b = instruction[15], out = JLT); // i[2] and i[15]
+    And(a = JLT, b = ng, out = load2); // Add in the ng since when ng = 1, ALU output is < 0
+
+    // !zr and !ng and i[0] and i[15] is when out > 0
+    Not(in = zr, out = notzr);
+    Not(in = ng, out = notng);
+    And(a = instruction[0], b = instruction[15], out = JGT);
+    And(a = notzr, b = notng, out = notzrnotng);
+    And(a = JGT, b = notzrnotng, out = load3);
+
+    // We have the three conditions for when jumps occur. If load1 or load2 or load3, then we jump.
+    Or(a = load1, b = load2, out = loadTemp);
+    Or(a = loadTemp, b = load3, out = loadBool);
+    // if loadBool is true, we jump; else, we do not jump.
+
+    // —— PC —— //
+    // Now we put this into the PC. If jump, then PC = A or else PC is inc.
+    // If reset is 1, then it is reset.
+    Not(in = loadBool, out = noload);
+
+    // We only inc when loadBool is false
+    PC(in = outA, load = loadBool, inc = noload, reset = reset, out[0..14] = pc);
+}

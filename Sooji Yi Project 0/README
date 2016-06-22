@@ -1,0 +1,23 @@
+PURPOSE OF THIS PROGRAM
+-----------------------
+* This is an assembler that translates Assembly language programs and generates Hack code that can be run on the CPU emulator.
+
+COMPILING/RUNNING PROGRAM
+-------------------------
+* In order to successfully fun this program, the .asm file MUST be passed through the stripWhiteSpace.py file first, and all comments must be removed. The correct syntax for this is:
+	python stripWhiteSpace.py no-comments filename.asm
+* An output file, for some reason, is not generated when using .asm (even though I changed the code to do so), so the original .asm file will be modified and changes will be saved over it.
+* Please check the README.txt for the Project 0 program for more detailed instructions.
+* To actually run the assembler, the syntax is:
+	python assembler.py filename.asm
+* This will generate a filename.hack file that can be run on the CPU emulator.
+
+WHAT WORKS/DOES NOT WORK
+------------------------
+* Order must be preserved in the syntax.
+* This assembler will not run if you do not run the stripWhiteSpace first.
+* I was unable to figure out how to integrate my stripWhiteSpace.py program into this assembler, because my stripWhiteSpace.py program is taking arguments from the command line. So it is not integrated.
+
+NOTES
+-----
+* Sorry this is so late! I had a lot going on and, as I said on Piazza, wasn't able to finish this on time.

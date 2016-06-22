@@ -1,0 +1,143 @@
+/**
+	Implements a graphic, squareobject that represents Player One. It has a screen location and size. It also has methods for moving on the screen and drawing.
+*/
+
+class Person
+{
+	// Location on the screen
+    field int x, y;
+
+    // The size of Player One square
+    field int size;
+
+    /** Constructs a new square with a given location and size. */
+    //------------------------------------------------------------
+    constructor Person new(int xP, int yP, int sizeP)
+    {
+        let x = x;
+        let y = y;
+        let size = sizeP;
+
+        do draw(x, y, size);
+
+        return this;
+    }
+
+    /** Deallocates the person's memory. */
+    //-------------------------------------
+    method void dispose()
+    {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Draws the person on the screen. */
+    //------------------------------------
+    method void draw(int x1, int y1, int size1)
+    {
+        do Screen.drawRectangle(x1, y1, x1 + size1, y1 + size1);
+        return;
+    }
+
+    /** Moves up by 2 pixels. */
+    //--------------------------
+    method void moveUp()
+    {
+        if (y > 1)
+        {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+            let y = y - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+            
+        }
+        return;
+    }
+
+    /** Moves down by 2 pixels. */
+    //-----------------------------
+    method void moveDown()
+    {
+        if ((y + size) < 254)
+        {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+            let y = y + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+        }
+        return;
+    }
+
+    /** Moves left by 2 pixels. */
+    //-----------------------------
+    method void moveLeft()
+    {
+        if (x > 1)
+        {
+            do Screen.setColor(false);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+            let x = x - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+
+        }
+        return;
+    }
+
+    /** Moves right by 2 pixels. */
+    //-----------------------------
+    method void moveRight()
+    {
+
+        if ((x + size) < 510)
+        {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+            let x = x + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+        }
+        return;
+    }
+
+    /** Returns Bottom Right X coordinate */
+    //------------------------------------
+    method int getX()
+    {
+        return x + size;
+    }
+
+
+    /** Returns Bottom Right Y coordinate */
+    //--------------------------------------
+    method int getY()
+    {
+        return y + size;
+    }
+
+    /** Returns Top Left X coordinate */
+    //------------------------------------
+    method int getXX()
+    {
+        return x;
+    }
+
+
+    /** Returns Top Left Y coordinate */
+    //--------------------------------------
+    method int getYY()
+    {
+        return y;
+    }
+
+    /** Returns the size */
+    //---------------------
+    method int getSize()
+    {
+        return size;
+    }
+
+
+}
